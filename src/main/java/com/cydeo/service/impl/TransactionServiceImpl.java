@@ -8,6 +8,7 @@ import com.cydeo.exception.RecordNotFoundException;
 import com.cydeo.model.Account;
 import com.cydeo.model.Transaction;
 import com.cydeo.repository.AccountRepository;
+import com.cydeo.repository.TransactionRepository;
 import com.cydeo.service.TransactionService;
 
 import java.math.BigDecimal;
@@ -18,9 +19,11 @@ import java.util.UUID;
 public class TransactionServiceImpl implements TransactionService {
 
     private final AccountRepository accountRepository;
+    private final TransactionRepository transactionRepository;
 
-    public TransactionServiceImpl(AccountRepository accountRepository) {
+    public TransactionServiceImpl(AccountRepository accountRepository, TransactionRepository transactionRepository) {
         this.accountRepository = accountRepository;
+        this.transactionRepository = transactionRepository;
     }
 
     @Override
@@ -32,13 +35,18 @@ public class TransactionServiceImpl implements TransactionService {
             -if sender has enough balance ?
             -if both accounts are checking, if not, one of them saving, it needs to be same userId
          */
-       validateAccount(sender, receiver);
-       checkAccountOwnership(sender, receiver);
+        validateAccount(sender, receiver);
+        checkAccountOwnership(sender, receiver);
+        executeBalanceAndUpdateIfRequired(amount, sender, receiver);
+        Transaction transaction = Transaction.builder()
+                .amount(amount)
+                .creationDate(creationDate)
+                .sender(sender.getId())
+                .receiver(receiver.getId()).message(message).build();
 
-
-
-       return  null;
+        return transactionRepository.save(transaction);
     }
+
 
     private void executeBalanceAndUpdateIfRequired(BigDecimal amount, Account sender, Account receiver) {
         if(checkSenderBalance(sender,amount)){
