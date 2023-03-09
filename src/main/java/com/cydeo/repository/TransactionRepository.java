@@ -12,6 +12,9 @@ public class TransactionRepository {
 
     public static List<Transaction> transactionList = new ArrayList<>();
 
+    public static List<Transaction> findAll() {
+        return transactionList;
+    }
 
     public Transaction save(Transaction transaction){
         transactionList.add(transaction);
