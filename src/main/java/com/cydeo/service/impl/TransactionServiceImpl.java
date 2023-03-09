@@ -1,6 +1,10 @@
 package com.cydeo.service.impl;
 
+import com.cydeo.enums.AccountType;
+import com.cydeo.exception.AccountOwnershipException;
 import com.cydeo.exception.BadRequestException;
+import com.cydeo.exception.BalanceNotSufficientException;
+import com.cydeo.exception.RecordNotFoundException;
 import com.cydeo.model.Account;
 import com.cydeo.model.Transaction;
 import com.cydeo.repository.AccountRepository;
@@ -20,7 +24,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public Transaction makeTransfer(Account sender, Account receiver, BigDecimal amount, Date creationDate, String message) {
+    public Transaction makeTransfer(Account sender, Account receiver, BigDecimal amount, Date creationDate, String message) throws RecordNotFoundException {
 
         /*
             -if sender or receiver is null ?
@@ -29,10 +33,41 @@ public class TransactionServiceImpl implements TransactionService {
             -if both accounts are checking, if not, one of them saving, it needs to be same userId
          */
        validateAccount(sender, receiver);
-        return null;
+       checkAccountOwnership(sender, receiver);
+
+
+
+       return  null;
     }
 
-    private void validateAccount(Account sender, Account receiver) {
+    private void executeBalanceAndUpdateIfRequired(BigDecimal amount, Account sender, Account receiver) {
+        if(checkSenderBalance(sender,amount)){
+            //make balance transfer between sender and receiver
+            sender.setBalance(sender.getBalance().subtract(amount));
+            receiver.setBalance(receiver.getBalance().add(amount));
+        }else{
+            //throw BalanceNotSufficientException
+            throw new BalanceNotSufficientException("Balance is nor enough for this transfer");
+        }
+
+    }
+
+    private boolean checkSenderBalance(Account sender, BigDecimal amount) {
+
+        return sender.getBalance().subtract(amount).compareTo(BigDecimal.ZERO) >= 0 ;
+
+
+    }
+
+    private void checkAccountOwnership(Account sender, Account receiver)  {
+
+        if((sender.getAccountType().equals(AccountType.SAVING) || receiver.getAccountType().equals(AccountType.SAVING))
+                && !sender.getUserId().equals(receiver.getUserId())){
+            throw new AccountOwnershipException("Since you are using a savings account, the sender and receiver must be the same.");
+        }
+    }
+
+    private void validateAccount(Account sender, Account receiver) throws RecordNotFoundException {
 
         /*
             -if any of the account is null
@@ -53,7 +88,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     }
 
-    private void findAccountById(UUID id) {
+    private void findAccountById(UUID id) throws RecordNotFoundException {
         accountRepository.findById(id);
     }
 
