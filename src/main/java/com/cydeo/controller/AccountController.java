@@ -22,4 +22,11 @@ public class AccountController {
         return "account/index";
 
     }
+
+    @GetMapping("/create-form")
+    public String createNewAccount(){
+
+        return "account/create-account";
+
+    }
 }

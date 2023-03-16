@@ -33,19 +33,19 @@
           </tr>
           </thead>
           <tbody>
-          <tr >
-            <td></td>
-            <td></td>
-            <td></td>
-            <td ></td>
-            <td></td>
+          <tr th:each="account : ${accountList}">
+            <td th:text="${account.getUserId()}"></td>
+            <td th:text="${account.getAccountStatus()}"></td>
+            <td th:text="${account.getBalance()}"></td>
+            <td th:text="${account.getAccountType()}"></td>
+            <td th:text="${account.getCreationDate()}"></td>
             <td><a class="btn btn-danger" href="#">Delete</a></td>
             <td><a class="btn btn-success" href="#">Account Transaction</a></td>
           </tr>
           </tbody>
         </table>
       </div>
-      <p class="my-5"><a href="#" class="btn btn-primary">Create Account<i class="fas fa-user-plus ml-2"></i></a></p>
+      <p class="my-5"><a th:href="@{/create-form}" class="btn btn-primary">Create Account<i class="fas fa-user-plus ml-2"></i></a></p>
       <p class="my-5"><a href="#" class="btn btn-primary">Make Transfer<i class="fas fa-user-plus ml-2"></i></a></p>
     </div>
   </div>
