@@ -45,7 +45,7 @@ public class AccountController {
     }
 
     //create method to capture information from UI,
-    @PostMapping("/confirm")
+    @PostMapping("/account/confirm")
     public String getInformationFromUI(@ModelAttribute("account") Account account){
 
         return "account/account-confirmation";
