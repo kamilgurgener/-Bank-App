@@ -7,12 +7,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Controller
 public class AccountController {
@@ -46,14 +48,27 @@ public class AccountController {
 
     //create method to capture information from UI,
     @PostMapping("/account/confirm")
-    public String getInformationFromUI(@ModelAttribute("account") Account account){
+    public String getInformationFromUI(@ModelAttribute("account") Account account, Model model){
 
-        return "account/account-confirmation";
+        //print them on the console.
+        System.out.println(account);
+
+        //trigger createAccount method, create the account based on user input
+        model.addAttribute("account", accountService.createNewAccount(account.getBalance(),
+                new Date(),account.getAccountType(), account.getUserId()));
+
+        return "redirect:/index";
     }
 
+      @GetMapping("/delete/{id}")
+    public String deleteAccount(@PathVariable("id") UUID id){
+          System.out.println(id);
+          accountService.deleteAccount(id);
+          //trigger deleteAccount method.
+        return "redirect:/index";
+      }
 
-    //print them on the console.
-    //trigger createAccount method, create the account based on user input.
+
 }
 
 
